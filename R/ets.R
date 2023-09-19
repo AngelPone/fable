@@ -81,14 +81,14 @@ train_ets <- function(.data, specials, opt_crit,
   best_spec <- model_opts[which.min(ic), ]
   best_spec$period <- ets_spec$season$period
 
+  .data <- dplyr::ungroup(.data)
+  .data$.fitted <- best$fitted
+  .data$.resid <- best$residuals
+  
   structure(
     list(
       par = tibble(term = names(best$par) %||% chr(), estimate = unname(best$par) %||% dbl()),
-      est = mutate(
-        dplyr::ungroup(.data),
-        .fitted = best$fitted,
-        .resid = best$residuals
-      ),
+      est = .data,
       fit = tibble(
         sigma2 = sum(best$residuals^2, na.rm = TRUE) / (length(y) - length(best$par)),
         log_lik = best$loglik, AIC = best$aic, AICc = best$aicc, BIC = best$bic,
